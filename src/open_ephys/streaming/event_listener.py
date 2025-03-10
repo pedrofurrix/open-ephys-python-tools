@@ -101,7 +101,7 @@ class EventListener:
         self.socket = self.context.socket(zmq.SUB)
         self.socket.connect(self.url)
         self.socket.setsockopt(zmq.SUBSCRIBE, b'')
-
+        self.running = False  # Stop flag
         print("Initialized EventListener at " + self.url)
 
 
@@ -124,7 +124,7 @@ class EventListener:
         """
 
         print("Starting EventListener")
-
+        self.running = True  # Set running flag
         while True:
             try:
                 parts = self.socket.recv_multipart()
@@ -139,5 +139,12 @@ class EventListener:
                         ttl_callback(info)
 
             except KeyboardInterrupt:
-                print()  # Add final newline
+                print("Stopped by KeyboardInterrupt")  # Add final newline
                 break
+            except Exception as e:
+                print(f"Error: {e}")
+        print("EventListener stopped.")
+        
+    def stop(self):
+        """Call this method to stop the listener"""
+        self.running = False
