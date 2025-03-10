@@ -125,7 +125,7 @@ class EventListener:
 
         print("Starting EventListener")
         self.running = True  # Set running flag
-        while True:
+        while self.running:
             try:
                 parts = self.socket.recv_multipart()
 
