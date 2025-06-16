@@ -24,7 +24,6 @@ SOFTWARE.
 """
 
 import os
-from enum import Enum
 from open_ephys.analysis.formats import (
     OpenEphysRecording,
     BinaryRecording,

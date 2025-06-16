@@ -25,7 +25,7 @@ SOFTWARE.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 import warnings
 import numpy as np
 import pandas
@@ -95,7 +95,7 @@ class Spikes(ABC):
     sample_numbers: np.ndarray | None
 
 
-class RecordingFormat(Enum):
+class RecordingFormat(StrEnum):
     nwb = "nwb"
     binary = "binary"
     openephys = "open-ephys"
