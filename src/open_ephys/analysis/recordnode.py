@@ -102,4 +102,4 @@ class RecordNode:
     def __str__(self):
         """Returns a string with information about the RecordNode"""
 
-        return os.path.basename(self.directory) + " (" + self.format + " format)"
+        return os.path.basename(self.directory) + " (" + str(self.format) + " format)"
