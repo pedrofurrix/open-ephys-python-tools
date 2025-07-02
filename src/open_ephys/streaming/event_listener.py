@@ -120,20 +120,28 @@ class EventListener:
         """
 
         print("Starting EventListener")
-
-        while True:
+        self.running = True  # Set running flag
+        while self.running:
             try:
                 parts = self.socket.recv_multipart()
 
                 if len(parts) == 2:
 
-                    info = json.loads(parts[1].decode("utf-8"))
+                    info = json.loads(parts[1].decode('utf-8'))
 
-                    if info["event_type"] == "spike":
+                    if info['event_type'] == 'spike':
                         spike_callback(info)
                     else:
                         ttl_callback(info)
 
             except KeyboardInterrupt:
-                print()  # Add final newline
+                print("Stopped by KeyboardInterrupt")  # Add final newline
                 break
+            except Exception as e:
+                print(f"Error: {e}")
+        print("EventListener stopped.")
+        
+    def stop(self):
+        """Call this method to stop the listener"""
+        self.running = False
+
