@@ -63,7 +63,7 @@ class NetworkControl:
 
     """
 
-    def __init__(self, ip_address="127.0.0.1", port=5556):
+    def __init__(self, ip_address="127.0.0.1", port=5556,verbose=False):
         """Construct a NetworkControl object
 
         Parameters
@@ -76,7 +76,7 @@ class NetworkControl:
             Default to 5556
 
         """
-
+        self.verbose = verbose
         self.url = "tcp://%s:%d" % (ip_address, port)
 
         self.context = zmq.Context()
@@ -157,3 +157,4 @@ class NetworkControl:
 
     def _get_response(self):
         print("Response: " + self.socket.recv().decode("utf-8"))
+    
