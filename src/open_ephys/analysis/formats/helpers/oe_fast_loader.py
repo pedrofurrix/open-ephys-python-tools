@@ -177,7 +177,7 @@ def load_continuous(filename, recording_index, start_sample=None, end_sample=Non
     f = open(filename, "rb")
     start_sample_number = np.fromfile(
         f, np.dtype("<i8"), count=1, offset=1024 + first_record * RECORD_SIZE
-    )  # little-
+    )[0]  # little-endian, extract scalar from 1-element array
 
     sample_numbers = np.arange(start_sample_number, start_sample_number + samples.size)
 
