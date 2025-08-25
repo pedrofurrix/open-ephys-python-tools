@@ -25,6 +25,7 @@ SOFTWARE.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from collections import namedtuple
 from enum import StrEnum
 import warnings
 import numpy as np
@@ -50,6 +51,51 @@ class ContinuousMetadata:
     bit_volts: list[float]
 
 
+def create_continuous_named_tuple(names, values):
+    """
+    Create a named tuple from the given names and values.
+    """
+    NT = namedtuple("DynamicTuple", names)
+    
+    class ContinuousWrapper:
+        """
+        Allow the .continuous attribute to be accessed as a dictionary.
+        """
+        def __init__(self, nt, names):
+            self._nt = nt
+            self._names = names
+            self._index = {name: i for i, name in enumerate(names)}
+
+        def __getitem__(self, key):
+            if isinstance(key, str):
+                return getattr(self._nt, key)
+            return self._nt[key]
+
+        def __getattr__(self, attr):
+            return getattr(self._nt, attr)
+
+        def __len__(self):
+            return len(self._nt)
+
+        def __iter__(self):
+            return iter(self._nt)
+        
+        def keys(self):
+            """Return available field names (like dict.keys())."""
+            return list(self._names)
+
+        def items(self):
+            """Return (name, value) pairs."""
+            return [(name, getattr(self._nt, name)) for name in self._names]
+
+        def values(self):
+            """Return values (like dict.values())."""
+            return list(self._nt)
+
+        def __repr__(self):
+            return repr(self._nt)
+        
+    return ContinuousWrapper(NT(*values), names)
 class Continuous(ABC):
     metadata: ContinuousMetadata
     samples: np.ndarray
@@ -86,6 +132,51 @@ class Continuous(ABC):
         """
         pass
 
+        def create_continuous_named_tuple(names, values):
+            """
+            Create a named tuple from the given names and values.
+            """
+            NT = namedtuple("DynamicTuple", names)
+            
+            class ContinuousWrapper:
+                """
+                Allow the .continuous attribute to be accessed as a dictionary.
+                """
+                def __init__(self, nt, names):
+                    self._nt = nt
+                    self._names = names
+                    self._index = {name: i for i, name in enumerate(names)}
+
+                def __getitem__(self, key):
+                    if isinstance(key, str):
+                        return getattr(self._nt, key)
+                    return self._nt[key]
+
+                def __getattr__(self, attr):
+                    return getattr(self._nt, attr)
+
+                def __len__(self):
+                    return len(self._nt)
+
+                def __iter__(self):
+                    return iter(self._nt)
+                
+                def keys(self):
+                    """Return available field names (like dict.keys())."""
+                    return list(self._names)
+
+                def items(self):
+                    """Return (name, value) pairs."""
+                    return [(name, getattr(self._nt, name)) for name in self._names]
+
+                def values(self):
+                    """Return values (like dict.values())."""
+                    return list(self._nt)
+
+                def __repr__(self):
+                    return repr(self._nt)
+                
+            return ContinuousWrapper(NT(*values), names)
 
 class Spikes(ABC):
     metadata: SpikeMetadata

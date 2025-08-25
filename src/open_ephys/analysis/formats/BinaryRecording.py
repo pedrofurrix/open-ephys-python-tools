@@ -37,6 +37,7 @@ from open_ephys.analysis.recording import (
     RecordingFormat,
     Spikes,
     SpikeMetadata,
+    create_continuous_named_tuple
 )
 from open_ephys.analysis.utils import alphanum_key
 
@@ -261,7 +262,14 @@ class BinaryRecording(Recording):
         self.sort_events = True
 
     def load_continuous(self):
-        self._continuous: list[BinaryContinuous] = []
+        """
+        Load continuous data as a named tuple, so it can be accessed
+        by index or name.
+        """
+
+        values = []
+        names = []
+        source_processor_ids = []
 
         for info in self.info["continuous"]:
             try:
@@ -276,7 +284,18 @@ class BinaryRecording(Recording):
                     + "'"
                 )
             else:
-                self._continuous.append(c)
+                values.append(c)
+                names.append(info["stream_name"])
+                source_processor_ids.append(info["folder_name"].split('-')[1].split('.')[0])
+
+        for idx1, name1 in enumerate(names):
+            for idx2, name2 in enumerate(names):
+                if idx1 != idx2 and name1 == name2:
+                    names[idx1] = name1 + "_" + source_processor_ids[idx1]
+                    names[idx2] = name2 + "_" + source_processor_ids[idx2]
+                    break
+
+        self._continuous = create_continuous_named_tuple(names, values)
 
     def load_spikes(self):
         self._spikes = []
