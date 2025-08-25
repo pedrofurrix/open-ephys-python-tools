@@ -1,6 +1,6 @@
 # `open-ephys-python-tools` Changelog
 
-## Unreleased
+## 1.0.0
 
 - Dropped support for Python < 3.9
 - Refactoring without new functionality or API changes
@@ -15,6 +15,36 @@
   - Added a `uv.lock` file for reproducible development environments.
 - `BinaryContinuous` and `BinarySpike` now have `__str__` methods to give an overview over
   their contents.
+
+## 0.1.13
+- Improve NWB format loading
+- Add method for selecting channels by name
+
+## 0.1.12
+- Fix bug in global timestamp computation
+
+## 0.1.11
+- Ensure experiment and recording directories are sorted alphanumericaly
+
+## 0.1.10
+- Add option to load events without sorting by timestamp
+
+## 0.1.9
+- Allow continuous timestamps to be loaded without memory mapping (necessary when timestamp file will be overwritten)
+
+## 0.1.8
+- Change indexing method for extracting processor ID in NwbRecording
+
+## 0.1.7
+- Raise exception if no events exist on a selected line for global timestamp computation
+- Add option to ignore a sample interval when computing global timestamps
+
+## 0.1.6
+- Add `config` method to `OpenEphysHTTPServer` class
+
+## 0.1.5
+- Speed up loading of Open Ephys data format
+- Add stream names to NWB and Open Ephys events
 
 ## 0.1.4
 
