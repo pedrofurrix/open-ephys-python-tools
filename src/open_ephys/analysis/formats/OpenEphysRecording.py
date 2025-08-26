@@ -40,6 +40,7 @@ from open_ephys.analysis.recording import (
     RecordingFormat,
     Spikes,
     SpikeMetadata,
+    create_continuous_named_tuple
 )
 
 
@@ -370,7 +371,7 @@ class OpenEphysRecording(Recording):
         splits = np.concatenate((splits, np.array([len(df)])))
 
         self._messages = df.iloc[
-            splits[self.recording_index] + 1 : splits[self.recording_index + 1]
+            splits[self.recording_index] + 1: splits[self.recording_index + 1]
         ]
 
     def find_continuous_files(self):

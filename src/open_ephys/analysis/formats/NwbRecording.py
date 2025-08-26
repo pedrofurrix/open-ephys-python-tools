@@ -25,7 +25,6 @@ SOFTWARE.
 
 import glob
 import os
-from pathlib import Path
 import h5py as h5
 import numpy as np
 import pandas as pd
@@ -37,6 +36,7 @@ from open_ephys.analysis.recording import (
     SpikeMetadata,
     RecordingFormat,
     Recording,
+    create_continuous_named_tuple
 )
 
 
@@ -155,12 +155,30 @@ class NwbRecording(Recording):
 
         datasets = list(self.nwb["acquisition"].keys())
 
-        self._continuous = [
+        names = [dataset.split(".")[1] for dataset in datasets
+                 if self.nwb["acquisition"][dataset].attrs["neurodata_type"]
+                 == "ElectricalSeries"]
+        
+        source_processor_ids = [
+            dataset.split(".")[0].split('-')[1] for dataset in datasets
+            if self.nwb["acquisition"][dataset].attrs["neurodata_type"]
+            == "ElectricalSeries"]
+
+        values = [
             NwbContinuous(self.nwb, dataset)
             for dataset in datasets
             if self.nwb["acquisition"][dataset].attrs["neurodata_type"]
             == "ElectricalSeries"
         ]
+
+        for idx1, name1 in enumerate(names):
+            for idx2, name2 in enumerate(names):
+                if idx1 != idx2 and name1 == name2:
+                    names[idx1] = name1 + "_" + source_processor_ids[idx1]
+                    names[idx2] = name2 + "_" + source_processor_ids[idx2]
+                    break
+
+        self._continuous = create_continuous_named_tuple(names, values)
 
     def load_spikes(self):
 
