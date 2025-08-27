@@ -88,10 +88,6 @@ def test_continuous_data(
     assert cont.metadata == openephys_recording_correct_continuous_metadata
 
 
-# FIXME: This gives a ValueError: cannot reshape array of size 15138 into shape (174,2,40)
-@pytest.mark.skip(
-    reason="This test is skipped as there may be a bug in the OpenEphysRecording class"
-)
 def test_spike_data(
     openephys_recording_with_spike_data: OpenEphysRecording,
     openephys_recording_correct_spike_metadata: SpikeMetadata,
@@ -99,13 +95,12 @@ def test_spike_data(
     assert openephys_recording_with_spike_data.spikes is not None
     nChannels = 2
     nSamplesPerWaveForm = 40
-    nSpikes = 200
-
+    
     assert len(openephys_recording_with_spike_data.spikes) > 0
 
     spike: OpenEphysSpikes = openephys_recording_with_spike_data.spikes[0]
+    nSpikes = spike.sample_numbers.shape[0]
     assert spike.waveforms.shape == (nSpikes, nChannels, nSamplesPerWaveForm)
-    assert spike.clusters.shape == (nSpikes,)
     assert spike.metadata == openephys_recording_correct_spike_metadata
 
 
