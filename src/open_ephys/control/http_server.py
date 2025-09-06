@@ -113,6 +113,19 @@ class OpenEphysHTTPServer:
 
         return resp.json()
 
+    def save(self, filepath):
+
+        """
+        Save the current configuration.
+        """
+
+        payload = {
+            'filepath' : filepath,
+        }
+
+        res = self.send('/api/save', payload)
+        return res
+
     def load(self, config_path):
         """
         Load a configuration file.
@@ -125,8 +138,171 @@ class OpenEphysHTTPServer:
 
         payload = {"path": config_path}
 
+<<<<<<< HEAD
         res = self.send("/api/load", payload)
         time.sleep(1)
+=======
+        res = self.send('/api/load', payload)
+        return res
+
+    def undo(self):
+
+        """
+        Undo the last action.
+        """
+
+        res = self.send('/api/undo')
+        return res
+
+    def redo(self):
+
+        """
+        Redo the last action.
+        """
+
+        res = self.send('/api/redo')
+        return res
+
+    def get_cpu_usage(self):
+
+        """
+        Get the average proportion of available CPU being spent inside the audio callbacks.
+        """
+
+        data = self.send('/api/cpu')
+        return data
+
+    def get_latencies(self):
+
+        """
+        Get processor latencies.
+        """
+
+        data = self.send('/api/latency')
+        return data
+
+    def get_audio_devices(self):
+
+        """
+        Get the available audio devices.
+        """
+
+        data = self.send('/api/audio/devices')
+        return data
+
+    def get_config(self):
+
+        """
+        Get the current configuration.
+        """
+
+        data = self.send('/api/config')
+        return data
+
+    def get_audio_settings(self, key=""):
+
+        """
+        Get the current audio device settings.
+
+        Available keys:
+        - buffer_size : The buffer size in samples
+        - sample_rate : The sample rate in Hz
+        - device_type : The audio device type
+
+        Parameters
+        ----------
+        key : String (optional)
+            The specific parameter to return
+
+        Returns
+        -------
+        info : dict
+            All audio device settings, if no key is supplied
+
+        param : String
+            The specified parameter value, if a key is supplied
+
+        """
+
+        data = self.send('/api/audio/device')
+        if key == "":
+            return data
+        elif key in data:
+            return data[key]
+        else:
+            return "Invalid key"
+
+    def set_sample_rate(self, sample_rate):
+
+        """
+        Set the audio device sample rate.
+
+        Parameters
+        ----------
+        sample_rate : Integer
+            The sample rate in Hz.
+        """
+
+        payload = {
+            'sample_rate' : sample_rate
+        }
+
+        res = self.send('/api/audio', payload)
+        return res
+
+    def set_buffer_size(self, buffer_size):
+
+        """
+        Set the audio device buffer size.
+
+        Parameters
+        ----------
+        buffer_size : Integer
+            The buffer size in samples.
+        """
+
+        payload = {
+            'buffer_size' : buffer_size
+        }
+
+        res = self.send('/api/audio', payload)
+        return res
+
+    def set_device_type(self, device_type):
+
+        """
+        Set the audio device type.
+
+        Parameters
+        ----------
+        device_type : String
+            The audio device type.
+        """
+
+        payload = {
+            'device_type' : device_type
+        }
+
+        res = self.send('/api/audio', payload)
+        return res
+
+    def set_device_name(self, device_name):
+
+        """
+        Set the audio device name.
+
+        Parameters
+        ----------
+        device_name : String
+            The audio device name.
+        """
+
+        payload = {
+            'device_name' : device_name
+        }
+
+        res = self.send('/api/audio', payload)
+>>>>>>> juce8
         return res
 
     def get_processor_list(self):
@@ -170,9 +346,9 @@ class OpenEphysHTTPServer:
         ----------
         name : String
             The name of the processor to add (e.g. "Record Node")
-        source : Integer
+        source : Integer, optional
             The 3-digit processor ID of the source (e.g. 101)
-        dest : Integer
+        dest : Integer, optional
             The 3-digit processor ID of the destination (e.g. 102)
         """
 
@@ -211,18 +387,25 @@ class OpenEphysHTTPServer:
 
         return data
 
+<<<<<<< HEAD
     def get_parameters(self, processor_id, stream_index):
+=======
+    def get_parameters(self, processor_id, stream_index = None):
+
+>>>>>>> juce8
         """
-        Get parameters for a stream.
+        Get parameters for a processor or a stream. 
 
         Parameters
         ----------
         processor_id : Integer
             The 3-digit processor ID (e.g. 101)
-        stream_index : Integer
+        stream_index : Integer, optional
             The index of the stream (e.g. 0).
+            If not specified, returns processor parameters
         """
 
+<<<<<<< HEAD
         endpoint = (
             "/api/processors/"
             + str(processor_id)
@@ -230,13 +413,53 @@ class OpenEphysHTTPServer:
             + str(stream_index)
             + "/parameters"
         )
+=======
+        if stream_index is None:
+            endpoint = '/api/processors/' + str(processor_id) + '/parameters'
+        else:
+            endpoint = '/api/processors/' + str(processor_id) + '/streams/' + str(stream_index) + '/parameters'
+            
+>>>>>>> juce8
         data = self.send(endpoint)
 
         return data
 
+<<<<<<< HEAD
     def set_parameter(self, processor_id, stream_index, param_name, value):
+=======
+    def set_processor_parameter(self, processor_id, param_name, value):
+
+>>>>>>> juce8
         """
-        Update a parameter value
+        Update a processor parameter value
+
+        Parameters
+        ----------
+        processor_id : Integer
+            The 3-digit processor ID (e.g. 101)
+        param_name : String
+            The parameter name (e.g. low_cut)
+        value : Any
+            The parameter value (must match the parameter type).
+            Hint: Float parameters must be sent with a decimal 
+                included (e.g. 1000.0 instead of 1000)
+
+        Returns
+        -------
+
+        """
+
+        endpoint = '/api/processors/' + str(processor_id) + '/parameters/' + param_name
+        payload = {
+            'value' : value
+        }
+        data = self.send(endpoint, payload)
+        return data
+
+    def set_stream_parameter(self, processor_id, stream_index, param_name, value):
+
+        """
+        Update a stream parameter value
 
         Parameters
         ----------
@@ -623,8 +846,12 @@ class OpenEphysHTTPServer:
         Quit the GUI.
         """
 
+<<<<<<< HEAD
         payload = {"command": "quit"}
         data = self.send("/api/window", payload)
+=======
+        data = self.send('/api/quit', {})
+>>>>>>> juce8
 
         return data
 
