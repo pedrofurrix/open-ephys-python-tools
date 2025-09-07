@@ -138,10 +138,6 @@ class OpenEphysHTTPServer:
 
         payload = {"path": config_path}
 
-<<<<<<< HEAD
-        res = self.send("/api/load", payload)
-        time.sleep(1)
-=======
         res = self.send('/api/load', payload)
         return res
 
@@ -302,7 +298,6 @@ class OpenEphysHTTPServer:
         }
 
         res = self.send('/api/audio', payload)
->>>>>>> juce8
         return res
 
     def get_processor_list(self):
@@ -387,12 +382,8 @@ class OpenEphysHTTPServer:
 
         return data
 
-<<<<<<< HEAD
-    def get_parameters(self, processor_id, stream_index):
-=======
     def get_parameters(self, processor_id, stream_index = None):
 
->>>>>>> juce8
         """
         Get parameters for a processor or a stream. 
 
@@ -405,31 +396,17 @@ class OpenEphysHTTPServer:
             If not specified, returns processor parameters
         """
 
-<<<<<<< HEAD
-        endpoint = (
-            "/api/processors/"
-            + str(processor_id)
-            + "/streams/"
-            + str(stream_index)
-            + "/parameters"
-        )
-=======
         if stream_index is None:
             endpoint = '/api/processors/' + str(processor_id) + '/parameters'
         else:
             endpoint = '/api/processors/' + str(processor_id) + '/streams/' + str(stream_index) + '/parameters'
             
->>>>>>> juce8
         data = self.send(endpoint)
 
         return data
 
-<<<<<<< HEAD
-    def set_parameter(self, processor_id, stream_index, param_name, value):
-=======
     def set_processor_parameter(self, processor_id, param_name, value):
 
->>>>>>> juce8
         """
         Update a processor parameter value
 
