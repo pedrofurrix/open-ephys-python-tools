@@ -823,12 +823,7 @@ class OpenEphysHTTPServer:
         Quit the GUI.
         """
 
-<<<<<<< HEAD
-        payload = {"command": "quit"}
-        data = self.send("/api/window", payload)
-=======
         data = self.send('/api/quit', {})
->>>>>>> juce8
 
         return data
 
