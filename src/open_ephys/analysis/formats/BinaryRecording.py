@@ -37,7 +37,7 @@ from open_ephys.analysis.recording import (
     RecordingFormat,
     Spikes,
     SpikeMetadata,
-    create_continuous_named_tuple
+    create_continuous_dict
 )
 from open_ephys.analysis.utils import alphanum_key
 
@@ -295,7 +295,7 @@ class BinaryRecording(Recording):
                     names[idx2] = name2 + "_" + source_processor_ids[idx2]
                     break
 
-        self._continuous = create_continuous_named_tuple(names, values)
+        self._continuous = create_continuous_dict(names, values)
 
     def load_spikes(self):
         self._spikes = []

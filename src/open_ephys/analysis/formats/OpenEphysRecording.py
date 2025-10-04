@@ -40,7 +40,7 @@ from open_ephys.analysis.recording import (
     RecordingFormat,
     Spikes,
     SpikeMetadata,
-    create_continuous_named_tuple
+    create_continuous_dict
 )
 
 
@@ -286,7 +286,8 @@ class OpenEphysRecording(Recording):
         continuous_files, stream_indexes, unique_stream_indexes, stream_info = (
             self.find_continuous_files()
         )
-        self._continuous = []
+        values = []
+        names = []
 
         for stream_index in unique_stream_indexes:
 
@@ -295,11 +296,15 @@ class OpenEphysRecording(Recording):
                 if stream_indexes[ind] == stream_index:
                     files_for_stream.append(os.path.join(self.directory, filename))
 
-            self._continuous.append(
+            names.append(stream_info[stream_index]["stream_name"])
+
+            values.append(
                 OpenEphysContinuous(
                     stream_info[stream_index], files_for_stream, self.recording_index
                 )
             )
+        
+        self._continuous = create_continuous_dict(names, values)
 
     def load_spikes(self):
 

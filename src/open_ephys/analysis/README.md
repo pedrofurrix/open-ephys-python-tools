@@ -65,9 +65,9 @@ Recording Index: 0
 
 ## Loading continuous data
 
-Continuous data for each recording is accessed via the `.continuous` property of each `Recording` object. This returns a list of continuous data, grouped by processor/sub-processor. For example, if you have two data streams merged into a single Record Node, each data stream will be associated with a different processor ID. If you're recording Neuropixels data, each probe's data stream will be stored in a separate sub-processor, which must be loaded individually.
+Continuous data for each recording is accessed via the `.continuous` property of each `Recording` object. This now returns a dictionary of continuous data grouped by processor/sub-processor. Each stream is stored twice in the dictionary: once under its zero-based index and once under its stream name. For example, if you have two data streams merged into a single Record Node, each data stream will be associated with a different processor ID. If you're recording Neuropixels data, each probe's data stream will be stored in a separate sub-processor, which must be loaded individually.
 
-Continuous data for individual data streams can be accessed by index (e.g., `continuous[0]`), or by stream name (e.g., `continuous["example_data"]`). If there are multiple streams with the same name, the source processor ID will be appended to the stream name so they can be distinguished (e.g., `continuous["example_data_100"]`).
+Continuous data for individual data streams can be accessed by index (e.g., `continuous[0]`), or by stream name (e.g., `continuous["example_data"]`). If there are multiple streams with the same name, the source processor ID will be appended to the stream name so they can be distinguished (e.g., `continuous["example_data_100"]`). Iterating over the dictionary yields the continuous objects in index order, and `continuous.keys()` lists both the integer indices and stream names that can be used for lookup.
 
 Each `continuous` object has four properties:
 

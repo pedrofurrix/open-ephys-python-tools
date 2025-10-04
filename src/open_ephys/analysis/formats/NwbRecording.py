@@ -36,7 +36,7 @@ from open_ephys.analysis.recording import (
     SpikeMetadata,
     RecordingFormat,
     Recording,
-    create_continuous_named_tuple
+    create_continuous_dict
 )
 
 
@@ -178,7 +178,7 @@ class NwbRecording(Recording):
                     names[idx2] = name2 + "_" + source_processor_ids[idx2]
                     break
 
-        self._continuous = create_continuous_named_tuple(names, values)
+        self._continuous = create_continuous_dict(names, values)
 
     def load_spikes(self):
 

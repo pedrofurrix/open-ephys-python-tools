@@ -25,7 +25,7 @@ SOFTWARE.
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from collections import namedtuple
+from collections.abc import Sequence
 from enum import StrEnum
 import warnings
 import numpy as np
@@ -51,51 +51,54 @@ class ContinuousMetadata:
     bit_volts: list[float]
 
 
-def create_continuous_named_tuple(names, values):
-    """
-    Create a named tuple from the given names and values.
-    """
-    NT = namedtuple("DynamicTuple", names)
-    
-    class ContinuousWrapper:
-        """
-        Allow the .continuous attribute to be accessed as a dictionary.
-        """
-        def __init__(self, nt, names):
-            self._nt = nt
-            self._names = names
-            self._index = {name: i for i, name in enumerate(names)}
+class ContinuousDict(dict):
+    """Dictionary access to continuous streams by numeric index or string name."""
 
-        def __getitem__(self, key):
-            if isinstance(key, str):
-                return getattr(self._nt, key)
-            return self._nt[key]
+    def __init__(self, names: Sequence[str], values: Sequence["Continuous"]):
+        if len(names) != len(values):
+            raise ValueError("`names` and `values` must have the same length.")
 
-        def __getattr__(self, attr):
-            return getattr(self._nt, attr)
+        super().__init__()
+        self._names = list(names)
+        self._values = list(values)
 
-        def __len__(self):
-            return len(self._nt)
+        for idx, (name, value) in enumerate(zip(self._names, self._values)):
+            super().__setitem__(idx, value)
+            super().__setitem__(name, value)
 
-        def __iter__(self):
-            return iter(self._nt)
-        
-        def keys(self):
-            """Return available field names (like dict.keys())."""
-            return list(self._names)
+    def __getitem__(self, key):
+        if isinstance(key, (int, np.integer)):
+            key = int(key)
+        return super().__getitem__(key)
 
-        def items(self):
-            """Return (name, value) pairs."""
-            return [(name, getattr(self._nt, name)) for name in self._names]
+    def __iter__(self):
+        return iter(self._values)
 
-        def values(self):
-            """Return values (like dict.values())."""
-            return list(self._nt)
+    def __len__(self):
+        return len(self._values)
 
-        def __repr__(self):
-            return repr(self._nt)
-        
-    return ContinuousWrapper(NT(*values), names)
+    def keys(self):
+        return list(range(len(self._values))) + list(self._names)
+
+    def items(self):
+        return [(idx, value) for idx, value in enumerate(self._values)] + [
+            (name, value) for name, value in zip(self._names, self._values)
+        ]
+
+    def values(self):
+        return list(self._values)
+
+    def __repr__(self):
+        entries = ", ".join(
+            f"{name!r}: {value!r}" for name, value in zip(self._names, self._values)
+        )
+        return f"ContinuousDict({{{entries}}})"
+
+
+def create_continuous_dict(names, values):
+    """Return continuous data as a dictionary keyed by index and stream name."""
+
+    return ContinuousDict(names, values)
 class Continuous(ABC):
     metadata: ContinuousMetadata
     samples: np.ndarray
@@ -131,52 +134,6 @@ class Continuous(ABC):
 
         """
         pass
-
-        def create_continuous_named_tuple(names, values):
-            """
-            Create a named tuple from the given names and values.
-            """
-            NT = namedtuple("DynamicTuple", names)
-            
-            class ContinuousWrapper:
-                """
-                Allow the .continuous attribute to be accessed as a dictionary.
-                """
-                def __init__(self, nt, names):
-                    self._nt = nt
-                    self._names = names
-                    self._index = {name: i for i, name in enumerate(names)}
-
-                def __getitem__(self, key):
-                    if isinstance(key, str):
-                        return getattr(self._nt, key)
-                    return self._nt[key]
-
-                def __getattr__(self, attr):
-                    return getattr(self._nt, attr)
-
-                def __len__(self):
-                    return len(self._nt)
-
-                def __iter__(self):
-                    return iter(self._nt)
-                
-                def keys(self):
-                    """Return available field names (like dict.keys())."""
-                    return list(self._names)
-
-                def items(self):
-                    """Return (name, value) pairs."""
-                    return [(name, getattr(self._nt, name)) for name in self._names]
-
-                def values(self):
-                    """Return values (like dict.values())."""
-                    return list(self._nt)
-
-                def __repr__(self):
-                    return repr(self._nt)
-                
-            return ContinuousWrapper(NT(*values), names)
 
 class Spikes(ABC):
     metadata: SpikeMetadata
@@ -242,8 +199,10 @@ class Recording(ABC):
     """
 
     @property
-    def continuous(self) -> list[Continuous] | None:
-        """Returns a list of Continuous objects"""
+    def continuous(self) -> ContinuousDict | None:
+        """Returns a ContinuousDict containing Continuous objects
+            which can be accessed by index or stream name.
+        """
         if self._continuous is None:
             self.load_continuous()
         return self._continuous
