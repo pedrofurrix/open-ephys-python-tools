@@ -26,8 +26,8 @@ jobs:
         cache-dependency-glob: "uv.lock"
     - name: Install Python (pin to a wheel-friendly version)
       run: |
-          uv python install 3.12
-          uv python pin 3.12
+        uv python install 3.12
+        uv python pin 3.12
 
     - name: Create virtualenv
       run: uv venv
