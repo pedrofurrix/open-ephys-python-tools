@@ -14,4 +14,7 @@ dist
 Notebooks
 notebooks
 
+.vscode
 .spyproject
+
+build

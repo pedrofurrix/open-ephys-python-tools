@@ -65,14 +65,16 @@ Recording Index: 0
 
 ## Loading continuous data
 
-Continuous data for each recording is accessed via the `.continuous` property of each `Recording` object. This returns a list of continuous data, grouped by processor/sub-processor. For example, if you have two data streams merged into a single Record Node, each data stream will be associated with a different processor ID. If you're recording Neuropixels data, each probe's data stream will be stored in a separate sub-processor, which must be loaded individually.
+Continuous data for each recording is accessed via the `.continuous` property of each `Recording` object. This now returns a dictionary of continuous data grouped by processor/sub-processor. Each stream is stored twice in the dictionary: once under its zero-based index and once under its stream name. For example, if you have two data streams merged into a single Record Node, each data stream will be associated with a different processor ID. If you're recording Neuropixels data, each probe's data stream will be stored in a separate sub-processor, which must be loaded individually.
+
+Continuous data for individual data streams can be accessed by index (e.g., `continuous[0]`), or by stream name (e.g., `continuous["example_data"]`). If there are multiple streams with the same name, the source processor ID will be appended to the stream name so they can be distinguished (e.g., `continuous["example_data_100"]`). Iterating over the dictionary yields the continuous objects in index order, and `continuous.keys()` lists both the integer indices and stream names that can be used for lookup.
 
 Each `continuous` object has four properties:
 
-- `samples` - a `numpy.ndarray` that holds the actual continuous data with dimensions of samples x channels. For Binary, NWB, and Kwik format, this will be a memory-mapped array (i.e., the data will only be loaded into memory when specific samples are accessed).
+- `samples` - a `numpy.ndarray` that holds the actual continuous data with dimensions of samples x channels. For Binary and NWB formats, this will be a memory-mapped array (i.e., the data will only be loaded into memory when specific samples are accessed).
 - `sample_numbers` - a `numpy.ndarray` that holds the sample numbers since the start of acquisition. This will have the same size as the first dimension of the `samples` array
 - `timestamps` - a `numpy.ndarray` that holds global timestamps (in seconds) for each sample, assuming all data streams were synchronized in this recording. This will have the same size as the first dimension of the `samples` array
-- `metadata` - a `dict` containing information about this data, such as the ID of the processor it originated from.
+- `metadata` - a `ContinousMetadata` dataclass containing information about this data, such as the ID of the processor it originated from.
 
 Because the memory-mapped samples are stored as 16-bit integers in arbitrary units, all analysis should be done on a scaled version of these samples. To load the samples scaled to microvolts, use the `get_samples()` method:
 
@@ -81,7 +83,7 @@ Because the memory-mapped samples are stored as 16-bit integers in arbitrary uni
 >> data = recording.continuous[0].get_samples(start_sample_index=0, end_sample_index=10000)
 ```
 
-This will return the first 10,000 continuous samples for all channels in units of microvolts. Note that your computer may run out of memory when requesting a large number of samples for many channels at once. It's also important to note that `start_sample_index` and `end_sample_index` represent relative indices in the `samples` array, rather than absolute sample numbers. The default behavior is to return all channels in the order in which they are stored, typically in increasing numerical order. However, if the `channel map` plugin is placed in the signal chain before a `record node`, the order of channels will follow the order of the specified channel mapping. 
+This will return the first 10,000 continuous samples for all channels in units of microvolts. Note that your computer may run out of memory when requesting a large number of samples for many channels at once. It's also important to note that `start_sample_index` and `end_sample_index` represent relative indices in the `samples` array, rather than absolute sample numbers. The default behavior is to return all channels in the order in which they are stored, typically in increasing numerical order. However, if the Channel Map plugin is placed in the signal chain before a Record Node, the order of channels will follow the order of the specified channel mapping. 
 
 The `get_samples` method includes the arguments:
 
@@ -124,7 +126,7 @@ If spike data has been saved by your Record Node (i.e., there is a Spike Detecto
 - `sample_numbers` - `numpy.ndarray` of sample indices (one per spikes)
 - `timestamps` - `numpy.ndarray` of global timestamps (in seconds)
 - `clusters` - `numpy.ndarray` of cluster IDs for each spike (default cluster = 0)
-- `metadata` - `dict` with metadata about each electrode
+- `metadata` - `SpikeMetadata` dataclass with metadata about each electrode
 
 ## Synchronizing timestamps
 
