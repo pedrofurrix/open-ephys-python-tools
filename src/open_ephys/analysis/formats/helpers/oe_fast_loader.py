@@ -177,7 +177,9 @@ def load_continuous(filename, recording_index, start_sample=None, end_sample=Non
     f = open(filename, "rb")
     start_sample_number = np.fromfile(
         f, np.dtype("<i8"), count=1, offset=1024 + first_record * RECORD_SIZE
-    )  # little-
+    )[
+        0
+    ]  # little-endian, extract scalar from 1-element array
 
     sample_numbers = np.arange(start_sample_number, start_sample_number + samples.size)
 
@@ -290,7 +292,7 @@ def load_spikes(filename, recording_number):
         42 + 2 * numChannels * numSamples + 4 * numChannels + 2 * numChannels + 2
     )
 
-    POST_BYTES = 4 * numChannels + 2 * numChannels + 2
+    POST_BYTES = np.int16(4 * numChannels + 2 * numChannels + 2)
 
     NUM_HEADER_BYTES = 1024
 
@@ -303,7 +305,7 @@ def load_spikes(filename, recording_number):
 
     for i in range(len(sample_numbers)):
 
-        sample_numbers[i] = np.fromfile(f, np.dtype("<i8"), 1)
+        sample_numbers[i] = np.fromfile(f, np.dtype("<i8"), 1)[0]
         f.seek(NUM_HEADER_BYTES + 1 + SPIKE_RECORD_SIZE * i)
 
     data = np.memmap(
@@ -318,8 +320,10 @@ def load_spikes(filename, recording_number):
 
     sample_numbers = np.copy(sample_numbers[mask])
 
+    offset_from_end = -(POST_BYTES // 2)
+
     waveforms = np.copy(
-        data[mask, 21 : -POST_BYTES // 2].reshape(
+        data[mask, 21:offset_from_end].reshape(
             (np.sum(mask), numChannels, numSamples)
         )
     ).astype("float32")

@@ -113,7 +113,7 @@ class EventListener:
         """Call this method to stop the listener"""
         self.running = False
     
-    def spike_callback(info):
+    def spike_callback(self,info):
         """
         Code to run when a spike event is received.
 
@@ -126,7 +126,7 @@ class EventListener:
         return
 
 
-    def ttl_callback(info):
+    def ttl_callback(self,info):
         """
         Code to run when a TTL event is received.
 
