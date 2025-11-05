@@ -91,15 +91,17 @@ class EventListener:
 
         while self.running:
             try:
-                events = dict(poller.poll(timeout=100))  # 100 ms timeout
-                if self.socket in events:
-                    parts = self.socket.recv_multipart()
-                    if len(parts) == 2:
-                        info = json.loads(parts[1].decode("utf-8"))
-                        if info['event_type'] == 'spike':
-                            self.spike_callback(info)
-                        else:
-                            self.ttl_callback(info)
+                parts = self.socket.recv_multipart()
+
+                if len(parts) == 2:
+
+                    info = json.loads(parts[1].decode("utf-8"))
+
+                    if info["event_type"] == "spike":
+                        self.spike_callback(info)
+                    else:
+                        self.ttl_callback(info)
+                        
             except KeyboardInterrupt:
                 print("Stopped by KeyboardInterrupt")
                 break
