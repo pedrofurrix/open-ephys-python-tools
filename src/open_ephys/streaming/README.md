@@ -83,5 +83,5 @@ stream.start(ttl_callback=ttl_callback,
              spike_callback=spike_callback)
 ```
 
-To stop listening, press `ctrl-C`.
+To stop listening, call the `stream.stop()` method from another thread or press `ctrl-C`.
 
