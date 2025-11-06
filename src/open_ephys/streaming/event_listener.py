@@ -140,8 +140,7 @@ class EventListener:
                 break
             except Exception as e:
                 print(f"Error: {e}")
-            print("EventListener stopped.")
-            print("")
+                break
 
     def stop(self):
         """Call this method to stop the listener"""
