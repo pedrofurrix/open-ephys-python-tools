@@ -122,7 +122,7 @@ class EventListener:
 
         print("Starting EventListener")
         self.running = True  # Set running flag
-        
+
         while self.running:
             try:
                 parts = self.socket.recv_multipart()
@@ -136,8 +136,8 @@ class EventListener:
                     else:
                         ttl_callback(info)
             except KeyboardInterrupt:
-                            print("Stopped by KeyboardInterrupt")  # Add final newline
-                            break
+                print("Stopped by KeyboardInterrupt")  # Add final newline
+                break
             except Exception as e:
                 print(f"Error: {e}")
             print("EventListener stopped.")
@@ -146,4 +146,3 @@ class EventListener:
     def stop(self):
         """Call this method to stop the listener"""
         self.running = False
-        
