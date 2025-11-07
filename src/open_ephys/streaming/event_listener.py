@@ -24,6 +24,7 @@ SOFTWARE.
 
 import zmq
 import json
+import threading
 
 
 def default_spike_callback(info):
@@ -99,6 +100,8 @@ class EventListener:
         self.socket = self.context.socket(zmq.SUB)
         self.socket.connect(self.url)
         self.socket.setsockopt(zmq.SUBSCRIBE, b"")
+        self.socket.setsockopt(zmq.RCVTIMEO, 1000) # 1 second timeout
+        self._stop_event = threading.Event()        
 
         print("Initialized EventListener at " + self.url)
 
@@ -120,8 +123,9 @@ class EventListener:
         """
 
         print("Starting EventListener")
+        self._stop_event.clear()  # Clear stop event
 
-        while True:
+        while not self._stop_event.is_set():
             try:
                 parts = self.socket.recv_multipart()
 
@@ -133,7 +137,18 @@ class EventListener:
                         spike_callback(info)
                     else:
                         ttl_callback(info)
-
+            except zmq.Again:
+                # Timeout occurred, continue loop to check stop flag
+                continue
             except KeyboardInterrupt:
-                print()  # Add final newline
+                print("Stopped by KeyboardInterrupt")
                 break
+            except Exception as e:
+                print(f"Error: {e}")
+                break
+
+        print("EventListener stopped")
+
+    def stop(self):
+        """Call this method to stop the listener"""
+        self._stop_event.set()
