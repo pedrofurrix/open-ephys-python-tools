@@ -97,9 +97,9 @@ from open_ephys.streaming import EventListener
 stream = EventListener(port=5557)
 
 thread = threading.Thread(
-            target=self.stream.start, 
-            args=(self.ttl_callback,self.spike_callback), # Arguments to the target function
-            daemon=True # Ensures the main program doesn't exit when the thread finishes
+            target = stream.start, 
+            args = (ttl_callback, spike_callback), # Arguments to the target function
+            daemon = True # Ensures the main program doesn't exit when the thread finishes
         )
 
 thread.start()
