@@ -100,8 +100,8 @@ class EventListener:
         self.socket = self.context.socket(zmq.SUB)
         self.socket.connect(self.url)
         self.socket.setsockopt(zmq.SUBSCRIBE, b"")
-        self.socket.setsockopt(zmq.RCVTIMEO, 1000)  # 1 second timeout
-        self._stop_event = threading.Event()
+        self.socket.setsockopt(zmq.RCVTIMEO, 1000) # 1 second timeout
+        self._stop_event = threading.Event()        
 
         print("Initialized EventListener at " + self.url)
 
@@ -123,7 +123,7 @@ class EventListener:
         """
 
         print("Starting EventListener")
-        self._stop_event.clear()
+        self._stop_event.clear()  # Clear stop event
 
         while not self._stop_event.is_set():
             try:
@@ -146,6 +146,8 @@ class EventListener:
             except Exception as e:
                 print(f"Error: {e}")
                 break
+
+        print("EventListener stopped")
 
     def stop(self):
         """Call this method to stop the listener"""
