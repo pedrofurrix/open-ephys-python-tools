@@ -24,9 +24,33 @@ SOFTWARE.
 
 import zmq
 import json
+import threading
 
 
+def default_spike_callback(info):
+    """
+    Code to run when a spike event is received.
 
+    Parameters
+    ----------
+    info - dict
+
+    """
+
+    return
+
+
+def default_ttl_callback(info):
+    """
+    Code to run when a TTL event is received.
+
+    Parameters
+    ----------
+    info - dict
+
+    """
+
+    return
 
 
 class EventListener:
@@ -76,7 +100,9 @@ class EventListener:
         self.socket = self.context.socket(zmq.SUB)
         self.socket.connect(self.url)
         self.socket.setsockopt(zmq.SUBSCRIBE, b'')
-        self.running = False  # Stop flag
+        self.running = False  # Stop flag        self.socket.setsockopt(zmq.RCVTIMEO, 1000) # 1 second timeout
+        self._stop_event = threading.Event()        
+
         print("Initialized EventListener at " + self.url)
 
     def start(self, ):
@@ -84,12 +110,13 @@ class EventListener:
         Starts the listening process, with separate callbacks for TTL events and spikes.
         """
         print("Starting EventListener")
+        self._stop_event.clear()  # Clear stop event
         self.running = True
 
         poller = zmq.Poller()
         poller.register(self.socket, zmq.POLLIN)
 
-        while self.running:
+        while not self._stop_event.is_set():
             try:
                 parts = self.socket.recv_multipart()
 
@@ -101,41 +128,18 @@ class EventListener:
                         self.spike_callback(info)
                     else:
                         self.ttl_callback(info)
-                        
+            except zmq.Again:
+                # Timeout occurred, continue loop to check stop flag
+                continue
             except KeyboardInterrupt:
                 print("Stopped by KeyboardInterrupt")
                 break
             except Exception as e:
                 print(f"Error: {e}")
+                break
 
-        print("EventListener stopped.")
+        print("EventListener stopped")
 
-        
     def stop(self):
         """Call this method to stop the listener"""
-        self.running = False
-    
-    def spike_callback(self,info):
-        """
-        Code to run when a spike event is received.
-
-        Parameters
-        ----------
-        info - dict
-
-        """
-
-        return
-
-
-    def ttl_callback(self,info):
-        """
-        Code to run when a TTL event is received.
-
-        Parameters
-        ----------
-        info - dict
-
-        """
-
-        return
+        self._stop_event.set()

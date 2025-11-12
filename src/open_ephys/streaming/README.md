@@ -85,3 +85,30 @@ stream.start(ttl_callback=ttl_callback,
 
 To stop listening, call the `stream.stop()` method from another thread or press `ctrl-C`.
 
+
+### Running the event listener in a separate thread
+
+To receive and respond to events in a separate thread, you can use the Python `threading` library:
+
+```python
+import threading
+from open_ephys.streaming import EventListener
+
+stream = EventListener(port=5557)
+
+thread = threading.Thread(
+            target = stream.start, 
+            args = (ttl_callback, spike_callback), # Arguments to the target function
+            daemon = True # Ensures the main program doesn't exit when the thread finishes
+        )
+
+thread.start()
+```
+
+To stop listening, call the `EventListener.stop()` method, and allow the thread to shut down gracefully by calling `thread.join()`:
+
+```python
+stream.stop()
+thread.join()
+```
+
