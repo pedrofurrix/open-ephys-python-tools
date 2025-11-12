@@ -100,7 +100,7 @@ class EventListener:
         self.socket = self.context.socket(zmq.SUB)
         self.socket.connect(self.url)
         self.socket.setsockopt(zmq.SUBSCRIBE, b'')
-        self.running = False  # Stop flag        self.socket.setsockopt(zmq.RCVTIMEO, 1000) # 1 second timeout
+        self.socket.setsockopt(zmq.RCVTIMEO, 1000) # 1 second timeout
         self._stop_event = threading.Event()        
 
         print("Initialized EventListener at " + self.url)
@@ -111,7 +111,6 @@ class EventListener:
         """
         print("Starting EventListener")
         self._stop_event.clear()  # Clear stop event
-        self.running = True
 
         poller = zmq.Poller()
         poller.register(self.socket, zmq.POLLIN)
@@ -143,3 +142,27 @@ class EventListener:
     def stop(self):
         """Call this method to stop the listener"""
         self._stop_event.set()
+    
+    def spike_callback(self, info):
+        """
+        Code to run when a spike event is received.
+
+        Parameters
+        ----------
+        info - dict
+
+        """
+
+        return
+    
+    def ttl_callback(self, info):
+        """
+        Code to run when a TTL event is received.
+
+        Parameters
+        ----------
+        info - dict
+
+        """
+
+        return
